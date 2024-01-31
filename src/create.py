@@ -13,24 +13,29 @@ import math;
 def rotate_xy(x, y, angulo, centro_x, centro_y):
     angulo_radianes = math.radians(angulo)
     
-    x_centro = centro_x
-    y_centro = centro_y
+    x_centro = centro_x;
+    y_centro = centro_y;
     
-    x -= x_centro
-    y = y_centro - y
+    x -= x_centro;
+    y  = y_centro - y;
     
-    x_rotado = x * math.cos(angulo_radianes) - y * math.sin(angulo_radianes)
-    y_rotado = x * math.sin(angulo_radianes) + y * math.cos(angulo_radianes)
+    x_rotado = x * math.cos(angulo_radianes) - y * math.sin(angulo_radianes);
+    y_rotado = x * math.sin(angulo_radianes) + y * math.cos(angulo_radianes);
     
-    x_rotado += x_centro
-    y_rotado  = y_centro - y_rotado
+    x_rotado += x_centro;
+    y_rotado  = y_centro - y_rotado;
     
-    return int(x_rotado), int(y_rotado)
-
+    return int(x_rotado), int(y_rotado);
+    
 #-------------------------------------------------------------------------------
-def rotate_wh(w, h, angulo, centro_x, centro_y):
-    return w, h;
-    
+def rotate_wh(w, h, angulo):
+    g_rad = math.radians(angulo);
+
+    w_prime = abs(w*math.cos(g_rad)) + abs(h*math.sin(g_rad));
+    h_prime = abs(w*math.sin(g_rad)) + abs(h*math.cos(g_rad));
+
+    return int(w_prime), int(h_prime);
+
 #-------------------------------------------------------------------------------
 def rotate_and_move(fnbase, target, dataset):
     assert os.path.isfile(f"{fnbase}.txt") and os.path.isfile(f"{fnbase}.PNG");
@@ -49,31 +54,50 @@ def rotate_and_move(fnbase, target, dataset):
     coords=[];
     with open(f"{fnbase}.txt") as fd:
          for line in fd:
-             _, x, y, w, h = line.split();
-             #x1=int((float(x)-float(w)/2)*ancho);
-             #y1=int((float(y)-float(h)/2)*alto );
-             #x2=int((float(x)+float(w)/2)*ancho);
-             #y2=int((float(y)+float(h)/2)*alto );
-             coords.append( (int(float(x)*ancho),int(float(y)*alto),int(float(w)*ancho),int(float(h)*alto)) );
+             c, x, y, w, h = line.split();
+             coords.append( (c, int(float(x)*ancho),int(float(y)*alto),int(float(w)*ancho),int(float(h)*alto)) );
     
+    new_coords=[];
     print(f"Rotando {fnbase}.PNG ", end='', flush=True);
-    for angulo in range(0, 360, 10):
+    for angulo in range(0, 360, 5):
         matriz_rotacion = cv2.getRotationMatrix2D((centro_x, centro_y), angulo, 1);
         imagen_rotada = cv2.warpAffine(imagen, matriz_rotacion, (ancho, alto));
         
-        imagen_dibujada=imagen_rotada;        
-        for x,y,w,h in coords:
+        imagen_dibujada=imagen_rotada;
+        for c,x,y,w,h in coords:
             xr, yr = rotate_xy(x, y, angulo, centro_x, centro_y);
-            wr, hr = rotate_wh(w, h, angulo, centro_x, centro_y);
-            imagen_dibujada = cv2.circle(imagen_dibujada, (xr, yr), 5, (0,0,255), thickness=-5)
-            #imagen_dibujada = cv2.rectangle(imagen_dibujada, (x1, y1), (x2, y2), (0,0,255), 2);
+            wr, hr = rotate_wh(w, h, angulo);
+            x1=(xr-wr//2);
+            x2=(xr+wr//2);
+            y1=(yr-hr//2);
+            y2=(yr+hr//2);
+            
+            x1=max(x1,0);
+            x1=min(x1,ancho-1);
+            
+            y1=max(y1,0);
+            y1=min(y1,alto-1);
+            
+            x2=max(x2,0);
+            x2=min(x2,ancho-1);
+            
+            y2=max(y2,0);
+            y2=min(y2,alto-1);
+            
+            if (x2-x1)*(y2-y1) < (w*h)*0.6: continue;
+            
+            imagen_dibujada = cv2.circle   (imagen_dibujada, (xr, yr), 5, (0,0,255), thickness=-5)
+            imagen_dibujada = cv2.rectangle(imagen_dibujada, (x1,y1), (x2,y2), (0,0,255), 2);
+            new_coords.append( (c,x1,y1,x2,y2) );
             
         newname=f"{os.path.join(target,filename)}-{angulo:03}";
+        with open(f"{newname}.txt","wt") as fd:
+             for c in new_coords:
+                 print(f"{c[0]} {c[1]} {c[2]} {c[3]} {c[4]}", file=fd);                                 
         cv2.imwrite(f"{newname}.png",imagen_dibujada);
         dataset.append( (f"{newname}.txt", f"{newname}.png") );
         print(".", end='', flush=True);
     print("", flush=True);
-    exit(0);
     
 #-------------------------------------------------------------------------------
 def rotate_all(source, target):
@@ -89,6 +113,7 @@ def rotate_all(source, target):
     for i,txt_filename in enumerate(txts):
         fnbase, _ = os.path.splitext(txt_filename);
         rotate_and_move(fnbase, target, dataset);
+        #if i>=10: break;
         
     return dataset;    
         
