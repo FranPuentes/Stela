@@ -26,9 +26,9 @@ if __name__ == "__main__":
    assert os.path.isdir(target);
    assert os.path.isdir(models);
 
-   model = "../runs/detect/train/weights/best.pt";
+   model_name = "../runs/detect/train/weights/best.pt";
 
-   metrics = model.val();
+   metrics = YOLO(model_name).val();
    
    print("="*80);
    print("map50-95");
