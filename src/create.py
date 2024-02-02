@@ -39,7 +39,7 @@ def rotate_wh(w, h, angulo):
     return int(w_prime), int(h_prime);
 
 #-------------------------------------------------------------------------------
-def rotate_and_copy(fnbase, target, dataset):
+def rotate_and_copy(fnbase, target, dataset, dot='.'):
     assert os.path.isfile(f"{fnbase}.txt") and os.path.isfile(f"{fnbase}.PNG");
     assert type(target) is str and os.path.isdir(target);    
     
@@ -98,7 +98,7 @@ def rotate_and_copy(fnbase, target, dataset):
                  print(f"{c[0]} {c[1]/ancho} {c[2]/alto} {c[3]/ancho} {c[4]/alto}", file=fd);
         cv2.imwrite(f"{newname}.png",imagen_dibujada);
         dataset.append( (f"{newname}.txt", f"{newname}.png") );
-        print(".", end='', flush=True);
+        print(dot, end='', flush=True);
     print("", flush=True);
     
 #-------------------------------------------------------------------------------
@@ -113,19 +113,19 @@ def split_and_rotate(source, target):
     trainset=[];
     testset =[];
     
-    # TODO si trainset.json y testset.json existen, leerlos.
+    # TODO si trainset.json y testset.json existen, leerlos y resolver diferencias
     
-    trainset_idx = random.sample(txts, 80);
+    trainset_idx = random.sample(txts, 98);
     
     for i,txt_filename in enumerate(txts):
     
         if txt_filename in trainset_idx:
            fnbase, _ = os.path.splitext(txt_filename);
-           rotate_and_copy(fnbase, os.path.join(target,"train"), trainset);
+           rotate_and_copy(fnbase, os.path.join(target,"train"), trainset, dot='.');
            
         else:
            fnbase, _ = os.path.splitext(txt_filename);
-           rotate_and_copy(fnbase, os.path.join(target,"test"), testset);
+           rotate_and_copy(fnbase, os.path.join(target,"test"), testset, dot='*');
            """
            fnbase, fn = os.path.split(txts[i]);
            txt_filepath=os.path.join(target,"test",fn);
@@ -138,8 +138,7 @@ def split_and_rotate(source, target):
            print("Copiado", txt_filepath, png_filepath, flush=True);
            
            testset.append( (txt_filepath, png_filepath) );
-           """
-           
+           """           
            
     return trainset, testset;
         

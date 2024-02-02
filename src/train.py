@@ -29,9 +29,9 @@ if __name__ == "__main__":
    yaml_file = os.path.join(target,'dataset.yaml');
    basemodel = 'yolov8x.pt';
    
-   model = YOLO(task="detect").load(basemodel);
+   model = YOLO(task="detect",model=os.path.join(models,"yolov8x.pt"));
 
-   model.train(imgsz=640, batch=16, epochs=100, data=yaml_file);
+   model.train(imgsz=640, batch=4, epochs=200, data=yaml_file);
    
    metrics = model.val();
    print(metrics);
