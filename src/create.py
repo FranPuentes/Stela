@@ -8,6 +8,8 @@ from pathlib import Path;
 import cv2;
 import numpy as np;
 import math;
+import random;
+import shutil;
 
 #-------------------------------------------------------------------------------
 def rotate_xy(x, y, angulo, centro_x, centro_y):
@@ -37,7 +39,7 @@ def rotate_wh(w, h, angulo):
     return int(w_prime), int(h_prime);
 
 #-------------------------------------------------------------------------------
-def rotate_and_move(fnbase, target, dataset):
+def rotate_and_copy(fnbase, target, dataset):
     assert os.path.isfile(f"{fnbase}.txt") and os.path.isfile(f"{fnbase}.PNG");
     assert type(target) is str and os.path.isdir(target);    
     
@@ -100,22 +102,46 @@ def rotate_and_move(fnbase, target, dataset):
     print("", flush=True);
     
 #-------------------------------------------------------------------------------
-def rotate_all(source, target):
+def split_and_rotate(source, target):
     assert type(source) in (tuple, list) and len(source)==2 and all([(type(l) is list) for l in source]);
     assert type(target) is str and os.path.isdir(target);
     assert len(source[0]) == len(source[1]);
     
     txts=source[0];
     pngs=source[1];
- 
-    dataset=[];
+    
+    trainset=[];
+    testset =[];
+    
+    # TODO si trainset.json y testset.json existen, leerlos.
+    
+    trainset_idx = random.sample(txts, 80);
     
     for i,txt_filename in enumerate(txts):
-        fnbase, _ = os.path.splitext(txt_filename);
-        rotate_and_move(fnbase, target, dataset);
-        #if i>=10: break;
-        
-    return dataset;    
+    
+        if txt_filename in trainset_idx:
+           fnbase, _ = os.path.splitext(txt_filename);
+           rotate_and_copy(fnbase, os.path.join(target,"train"), trainset);
+           
+        else:
+           fnbase, _ = os.path.splitext(txt_filename);
+           rotate_and_copy(fnbase, os.path.join(target,"test"), testset);
+           """
+           fnbase, fn = os.path.split(txts[i]);
+           txt_filepath=os.path.join(target,"test",fn);
+           shutil.copy(txts[i], txt_filepath);
+           
+           fnbase, fn = os.path.split(pngs[i]);
+           png_filepath=os.path.join(target,"test",fn);
+           shutil.copy(pngs[i], png_filepath);
+           
+           print("Copiado", txt_filepath, png_filepath, flush=True);
+           
+           testset.append( (txt_filepath, png_filepath) );
+           """
+           
+           
+    return trainset, testset;
         
 ################################################################################
 if __name__ == "__main__":
@@ -142,9 +168,12 @@ if __name__ == "__main__":
        png_list.append(png_filename);
        assert png_list.index(png_filename)==txt_list.index(txt_filename);
    
-   dataset=rotate_all(source=(txt_list,png_list), target=target);
+   trainset, testset = split_and_rotate(source=(txt_list,png_list), target=target);
 
-   with open(os.path.join(target,"dataset.json"),"wt") as fd:   
-        json.dump(dataset, fp=fd);
+   with open(os.path.join(target,"trainset.json"),"wt") as fd:
+        json.dump(trainset, fp=fd);
+
+   with open(os.path.join(target,"testset.json"),"wt") as fd:
+        json.dump(testset, fp=fd);
    
    

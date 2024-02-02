@@ -13,15 +13,9 @@ import random;
 
 from ultralytics import YOLO;
 
-def split_list(lista, porcentaje):
-    tamaño = len(lista);
-    tamaño_parte = int(tamaño * porcentaje / 100);
-    parte_aleatoria = random.sample(lista, tamaño_parte);
-    resto = [elemento for elemento in lista if elemento not in parte_aleatoria];
-    return parte_aleatoria, resto;
-
 if __name__ == "__main__":
    
+   print(sys.argv);
    assert len(sys.argv) >= 3;
       
    origin=os.path.abspath(sys.argv[1]);
@@ -33,7 +27,7 @@ if __name__ == "__main__":
    assert os.path.isdir(models);
 
    yaml_file = os.path.join(target,'dataset.yaml');
-   basemodel = 'yolov8n.pt';
+   basemodel = 'yolov8x.pt';
    
    model = YOLO(task="detect").load(basemodel);
 
@@ -44,7 +38,3 @@ if __name__ == "__main__":
 
    model.export(format="onnx"  );
    model.export(format="engine");
-   
-   #model.save(os.path.join(models,'stela.pt'));
-
-   
