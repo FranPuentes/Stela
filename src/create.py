@@ -60,7 +60,7 @@ def rotate_and_copy(fnbase, target, dataset, dot='.'):
              coords.append( (c, int(float(x)*ancho),int(float(y)*alto),int(float(w)*ancho),int(float(h)*alto)) );
     
     print(f"Rotando {fnbase}.PNG ", end='', flush=True);
-    for angulo in range(0, 360, 5):
+    for angulo in range(0, 360, 3):
         matriz_rotacion = cv2.getRotationMatrix2D((centro_x, centro_y), angulo, 1);
         imagen_rotada = cv2.warpAffine(imagen, matriz_rotacion, (ancho, alto));
         

@@ -26,28 +26,10 @@ if __name__ == "__main__":
    assert os.path.isdir(target);
    assert os.path.isdir(models);
 
-   model_name = "../runs/detect/train/weights/best.pt";
+   yaml_file = os.path.join(target,'dataset.yaml');
+   basemodel = os.path.join(models,'yolov8x.pt');
+   
+   model = YOLO(task="detect", model=basemodel);
 
-   metrics = YOLO(model_name).val();
-   
-   print("="*80);
-   print("map50-95");
-   print("="*80);
-   print(metrics.box.map);
-   
-   print("="*80);
-   print("map50");
-   print("="*80);
-   print(metrics.box.map50);
-   
-   print("="*80);
-   print("map75");
-   print("="*80);
-   print(metrics.box.map75);
-   
-   print("="*80);
-   print("maps");
-   print("="*80);
-   print(metrics.box.maps);
+   model.tune(data=yaml_file, epochs=30, iterations=300, optimizer='AdamW', plots=False, save=False, val=False);
 
-   

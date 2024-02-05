@@ -27,11 +27,11 @@ if __name__ == "__main__":
    assert os.path.isdir(models);
 
    yaml_file = os.path.join(target,'dataset.yaml');
-   basemodel = 'yolov8x.pt';
+   basemodel = os.path.join(models,'yolov8x.pt');
    
-   model = YOLO(task="detect",model=os.path.join(models,"yolov8x.pt"));
+   model = YOLO(task="detect", model=basemodel);
 
-   model.train(imgsz=640, batch=4, epochs=200, data=yaml_file);
+   model.train(imgsz=640, batch=32, epochs=200, data=yaml_file);
    
    metrics = model.val();
    print(metrics);
