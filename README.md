@@ -9,9 +9,10 @@ Herramientas para el entrenamiento de modelos para la detección de estelas en i
 
 https://github.com/FranPuentes/Stela/assets/2001456/372dd0f2-eb4d-45fb-8679-da2225178a96
 
-**Vídeo procesado**
+**Vídeo procesado con un *theshold* del 0.40**
 
-https://github.com/FranPuentes/Stela/assets/2001456/39f8ce61-6640-43d9-8f74-8a9b1b146bc8
+https://github.com/FranPuentes/Stela/assets/2001456/2cc84c51-a4fe-4ecc-bd71-8511407df52e
+
 
 
 
